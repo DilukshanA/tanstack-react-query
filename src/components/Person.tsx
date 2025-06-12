@@ -1,7 +1,31 @@
-import { Box, Button, Grid } from "@mui/material";
-
+import { Box, Button, CircularProgress, Grid } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 const Person = () => {
+
+    const fetchPersons = async () => {
+        try {
+            const response = await axios.get("http://localhost:4000/all-persons");
+            return response.data;
+        } catch (error) {
+            
+        }
+    }
+
+    const { data, isError, isLoading } = useQuery({
+        queryKey: ["person"],
+        queryFn: fetchPersons
+    })
+
+    if(isError) {
+        return <Box>Error fetching data</Box>;
+    }
+
+    if(isLoading) {
+        return <CircularProgress/>;
+    }
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Grid container direction={"column"}>
@@ -33,9 +57,9 @@ const Person = () => {
           </Grid>
         </Grid>
 
-        {persons.map((p, index) => (
+        {data?.map((person : any) => (
           <Grid
-            key={index}
+            key={person._id}
             container
             direction="row"
             size={12}
@@ -48,7 +72,7 @@ const Person = () => {
               justifyContent="start"
               alignItems="center"
             >
-              <Box>{p.name}</Box>
+              <Box>{person.name}</Box>
             </Grid>
             <Grid
               size={1}
@@ -56,7 +80,7 @@ const Person = () => {
               justifyContent="start"
               alignItems="center"
             >
-              <Box>{p.age}</Box>
+              <Box>{person.age}</Box>
             </Grid>
             <Grid
               size={3}
@@ -64,7 +88,7 @@ const Person = () => {
               justifyContent="start"
               alignItems="center"
             >
-              <Box>{p.email}</Box>
+              <Box>{person.email}</Box>
             </Grid>
             <Grid
               size={2}
